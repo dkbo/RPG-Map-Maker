@@ -486,6 +486,7 @@ drawGridY : function(){
         <canvas  width="256" height="12000" id="spriteCanvas" />
         <img src={this.state.spritesSrc}/>
         <img src="http://dkbo.github.io/images/rpg_maker_xp2.png" style={{display: "none"}}/>
+        <img src="http://dkbo.github.io/images/man.png" style={{display: "none"}}/>
      </Sprites>
       <Top>
         <textarea  id="jsoncode" value={this.state.json}/>
