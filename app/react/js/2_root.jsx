@@ -155,17 +155,17 @@ var Root = React.createClass({
     init.bcontext.clearRect(0, 0, s.width, s.height);
     init.mcontext.clearRect(0, 0, s.width, s.height);
     for(var i=0;i<xs.length;i++){
-    image.src = xs[i].background;
+    image.src = xs[i].b;
     if(xs[i].zIndex == 2)
-      init.fcontext.drawImage(image, xs[i].sourceX , xs[i].sourceY , xs[i].width, xs[i].height , xs[i].left,  xs[i].top ,  xs[i].width,  xs[i].height);
+      init.fcontext.drawImage(image, xs[i].x , xs[i].y , xs[i].w, xs[i].h , xs[i].l,  xs[i].t ,  xs[i].w,  xs[i].h);
     
     else
-      init.bcontext.drawImage(image, xs[i].sourceX , xs[i].sourceY , xs[i].width, xs[i].height , xs[i].left,  xs[i].top ,  xs[i].width,  xs[i].height);
+      init.bcontext.drawImage(image, xs[i].x , xs[i].y , xs[i].w, xs[i].h , xs[i].l,  xs[i].t ,  xs[i].w,  xs[i].h);
  
     }
     for(var i=0;i<x.isMove.length;i++){
       init.mcontext.beginPath();
-      init.mcontext.rect(x.isMove[i].mx,x.isMove[i].my, x.isMove[i].mw,x.isMove[i].mh);
+      init.mcontext.rect(x.isMove[i].x,x.isMove[i].y, x.isMove[i].w,x.isMove[i].h);
       init.mcontext.fillStyle = "rgba(27, 136, 224, 0.53)";
       init.mcontext.fill();
     }
@@ -408,14 +408,14 @@ drawGridY : function(){
     var s = this.state;
     image.src = this.state.spritesSrc;
     var json = {
-      name : init.objectName,
-      left : x,
-      top : y,
-      width : s.sourceW,
-      height : s.sourceH,
-      background : image.src,   
-      sourceX : s.sourceX ,
-      sourceY :  s.sourceY    
+      n : init.objectName,
+      l : x,
+      t : y,
+      w : s.sourceW,
+      h : s.sourceH,
+      b : image.src,   
+      x : s.sourceX ,
+      y :  s.sourceY    
     };
     if(z == 2){
       json.zIndex = 2
