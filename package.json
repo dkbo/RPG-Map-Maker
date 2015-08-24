@@ -1,0 +1,19 @@
+{
+  "name": "rpg-maker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "gulpfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dkbo/rpg-maker.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dkbo/rpg-maker/issues"
+  },
+  "homepage": "https://github.com/dkbo/rpg-maker#readme"
+}
