@@ -166,7 +166,7 @@ var Root = React.createClass({
     for(var i=0;i<x.isMove.length;i++){
       init.mcontext.beginPath();
       init.mcontext.rect(x.isMove[i].x,x.isMove[i].y, x.isMove[i].w,x.isMove[i].h);
-      init.mcontext.fillStyle = "rgba(27, 136, 224, 0.53)";
+      init.mcontext.fillStyle = "rgba(27, 136, 224, 0.83)";
       init.mcontext.fill();
     }
     init.arr = xs;
@@ -200,15 +200,16 @@ var Root = React.createClass({
 drawMove : function(e){
   if(init.drawIsMove){
     init.mcontext.clearRect(init.mouseMoveX,init.mouseMoveY, init.mouseMoveW, init.mouseMoveH);
-    init.mouseMoveX  = e.clientX > init.mouseDownX ? init.mouseDownX-255 : e.clientX-255;
-    init.mouseMoveY  = e.clientY > init.mouseDownY ? init.mouseDownY-100 : e.clientY-100;
+    init.mouseMoveX  = e.clientX > init.mouseDownX ? init.mouseDownX-255 - (this.state.mapLeft*this.props.map.sX): e.clientX-255 - (this.state.mapLeft*this.props.map.sX);
+    init.mouseMoveY  = e.clientY > init.mouseDownY ? init.mouseDownY-100 - (this.state.mapTop*this.props.map.sY): e.clientY-100 - (this.state.mapTop*this.props.map.sY);
     init.mouseMoveW  = e.clientX - init.mouseDownX > 0 ? e.clientX - init.mouseDownX : init.mouseDownX -e.clientX;
     init.mouseMoveH  = e.clientY - init.mouseDownY > 0 ? e.clientY - init.mouseDownY : init.mouseDownY -e.clientY; 
     
     init.mcontext.beginPath();
     init.mcontext.rect(init.mouseMoveX, init.mouseMoveY, init.mouseMoveW, init.mouseMoveH);
-    init.mcontext.fillStyle = "rgba(27, 136, 224, 0.53)";
+    init.mcontext.fillStyle = "rgba(27, 136, 224, 0.83)";
     init.mcontext.fill();
+
   }
 },
 drawUp : function(e){
@@ -219,10 +220,11 @@ drawUp : function(e){
 },
 pushIsMove(){
   var x = {};
-  x.mx = init.mouseMoveX;
-  x.my = init.mouseMoveY;
-  x.mw = init.mouseMoveW;
-  x.mh = init.mouseMoveH;  
+  x.n = init.objectName;
+  x.x = init.mouseMoveX;
+  x.y = init.mouseMoveY;
+  x.w = init.mouseMoveW;
+  x.h = init.mouseMoveH;  
   init.mouseMoveX = 0;
   init.mouseMoveY = 0;
   init.mouseMoveW = 0;
@@ -483,6 +485,7 @@ drawGridY : function(){
      transform : 'translateY('+this.state.sprite.top*this.props.map.sY+'px)'}}onWheel={this.handleWheel} onMouseDown={this.handleMouseDown} onContextMenu={this.contextMenu} >
         <canvas  width="256" height="12000" id="spriteCanvas" />
         <img src={this.state.spritesSrc}/>
+        <img src="http://dkbo.github.io/images/rpg_maker_xp2.png" style={{display: "none"}}/>
      </Sprites>
       <Top>
         <textarea  id="jsoncode" value={this.state.json}/>
