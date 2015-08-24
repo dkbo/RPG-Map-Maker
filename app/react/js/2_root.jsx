@@ -156,7 +156,7 @@ var Root = React.createClass({
     init.mcontext.clearRect(0, 0, s.width, s.height);
     for(var i=0;i<xs.length;i++){
     image.src = xs[i].b;
-    if(xs[i].zIndex == 2)
+    if(xs[i].z == 2)
       init.fcontext.drawImage(image, xs[i].x , xs[i].y , xs[i].w, xs[i].h , xs[i].l,  xs[i].t ,  xs[i].w,  xs[i].h);
     
     else
