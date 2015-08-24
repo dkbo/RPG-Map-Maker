@@ -122,7 +122,7 @@ var Root = React.createClass({
     }
   },
   handleObjectName : function(e){
-    init.objectName = e.target.value
+    init.objectName = e.target.value;
   },
   handleSprite : function(e){
     if(this.isReaptImg(e.target.value)){
