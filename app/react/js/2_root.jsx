@@ -418,7 +418,7 @@ drawGridY : function(){
       y :  s.sourceY    
     };
     if(z == 2){
-      json.zIndex = 2
+      json.z = 2
       init.fcontext.drawImage(image, s.sourceX , s.sourceY , s.sourceW, s.sourceH ,x, y , s.sourceW, s.sourceH);
     }
     else
