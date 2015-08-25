@@ -125,9 +125,12 @@ var Root = React.createClass({
     init.objectName = e.target.value;
   },
   handleSprite : function(e){
+    console.log(init.img)
     if(this.isReaptImg(e.target.value)){
-    image.src=e.target.value; 
-    init.img.push(e.target.value)
+    var i = init.pre.length;
+    init.pre[i] = new Image();  
+    init.pre[i].src=e.target.value; 
+    init.img.push(init.pre[i].src)
     }
     this.setState({spritesSrc : e.target.value})
   },
@@ -155,6 +158,7 @@ var Root = React.createClass({
     init.bcontext.clearRect(0, 0, s.width, s.height);
     init.mcontext.clearRect(0, 0, s.width, s.height);
     for(var i=0;i<xs.length;i++){
+    this.drawJsonPreImg(xs[i].b);
     image.src = xs[i].b;
     if(xs[i].z == 2)
       init.fcontext.drawImage(image, xs[i].x , xs[i].y , xs[i].w, xs[i].h , xs[i].l,  xs[i].t ,  xs[i].w,  xs[i].h);
@@ -172,6 +176,22 @@ var Root = React.createClass({
     init.arr = xs;
     init.isMoveArr = x.isMove;
     this.setState({json : JSON.stringify(x, null, '\t')})
+  },
+  drawJsonPreImg : function(x){
+    var y = false;
+    for(var j=0;j<init.img.length;j++){
+        if(x === init.img[j]){
+          y = true;
+          break;
+        }
+    }
+    if(!y){
+      var i = init.pre.length;
+      init.pre[i] = new Image();
+      init.pre[i].src = x; 
+      init.img.push(x);
+    }
+    return y
   },
   drawDown : function(e){
     var x = (Math.floor((e.clientX - 256 -this.state.mapLeft*this.props.map.sX)/this.props.map.sX)*this.props.map.sX)
@@ -485,8 +505,6 @@ drawGridY : function(){
      transform : 'translateY('+this.state.sprite.top*this.props.map.sY+'px)'}}onWheel={this.handleWheel} onMouseDown={this.handleMouseDown} onContextMenu={this.contextMenu} >
         <canvas  width="256" height="12000" id="spriteCanvas" />
         <img src={this.state.spritesSrc}/>
-        <img src="http://dkbo.github.io/images/rpg_maker_xp2.png" style={{display: "none"}}/>
-        <img src="http://dkbo.github.io/images/man.png" style={{display: "none"}}/>
      </Sprites>
       <Top>
         <textarea  id="jsoncode" value={this.state.json}/>
