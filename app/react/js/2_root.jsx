@@ -37,6 +37,8 @@ var Root = React.createClass({
       sprite:{
         top : 0
       },
+      objectNum:0,
+      mapObjects:null,
       mapTop: 0,
       mapLeft:0,
       width : this.props.map.width,
@@ -51,6 +53,10 @@ var Root = React.createClass({
       opacityB : 1,
       opacityM : 1,
       json : null,
+      jsonParse : {
+        styles:[],
+        isMove:[]
+      },
       spritesSrc : "http://dkbo.github.io/images/rpg_maker_xp.png"
     }
   },
@@ -125,12 +131,13 @@ var Root = React.createClass({
     init.objectName = e.target.value;
   },
   handleSprite : function(e){
+    var img;
     console.log(init.img)
     if(this.isReaptImg(e.target.value)){
     var i = init.pre.length;
-    init.pre[i] = new Image();  
-    init.pre[i].src=e.target.value; 
-    init.img.push(init.pre[i].src)
+    img = new Image();  
+    img.src=e.target.value; 
+    init.img.push(img.src)
     }
     this.setState({spritesSrc : e.target.value})
   },
@@ -158,14 +165,13 @@ var Root = React.createClass({
     init.bcontext.clearRect(0, 0, s.width, s.height);
     init.mcontext.clearRect(0, 0, s.width, s.height);
     for(var i=0;i<xs.length;i++){
-    this.drawJsonPreImg(xs[i].b);
+    if(this.drawJsonPreImg(xs[i].b)){;
     image.src = xs[i].b;
     if(xs[i].z == 2)
       init.fcontext.drawImage(image, xs[i].x , xs[i].y , xs[i].w, xs[i].h , xs[i].l,  xs[i].t ,  xs[i].w,  xs[i].h);
-    
     else
       init.bcontext.drawImage(image, xs[i].x , xs[i].y , xs[i].w, xs[i].h , xs[i].l,  xs[i].t ,  xs[i].w,  xs[i].h);
- 
+    }
     }
     for(var i=0;i<x.isMove.length;i++){
       init.mcontext.beginPath();
@@ -175,10 +181,12 @@ var Root = React.createClass({
     }
     init.arr = xs;
     init.isMoveArr = x.isMove;
-    this.setState({json : JSON.stringify(x, null, '\t')})
+    this.setState({json : JSON.stringify(x, null, '\t'),jsonParse:x})
+
   },
   drawJsonPreImg : function(x){
     var y = false;
+    var img;
     for(var j=0;j<init.img.length;j++){
         if(x === init.img[j]){
           y = true;
@@ -186,9 +194,11 @@ var Root = React.createClass({
         }
     }
     if(!y){
-      var i = init.pre.length;
-      init.pre[i] = new Image();
-      init.pre[i].src = x; 
+      img = new Image();
+      img.onload = function(){
+        return y
+      }.bind(this);
+      img.src = x; 
       init.img.push(x);
     }
     return y
@@ -254,7 +264,7 @@ pushIsMove(){
       styles : init.arr,
       isMove : init.isMoveArr
     }
-  this.setState({json : JSON.stringify(json, null, '\t')})
+  this.setState({json : JSON.stringify(json, null, '\t'),jsonParse:json,objectNum:init.isMoveArr.length-1,mapObjects:3})
 },
   mapKeyDown : function(e){
         switch(e.keyCode){
@@ -423,11 +433,12 @@ drawGridY : function(){
         styles : init.arr,
         isMove : init.isMoveArr
       }
-  this.setState({json: JSON.stringify(json, null, '\t')});
+  this.setState({json: JSON.stringify(json, null, '\t'),jsonParse:json,mapObjects:null});
     }
   },
   draw : function(x,y,z){
     var s = this.state;
+    var mapObjects = 2;
     image.src = this.state.spritesSrc;
     var json = {
       n : init.objectName,
@@ -441,6 +452,7 @@ drawGridY : function(){
     };
     if(z == 2){
       json.z = 2
+      mapObjects = 1
       init.fcontext.drawImage(image, s.sourceX , s.sourceY , s.sourceW, s.sourceH ,x, y , s.sourceW, s.sourceH);
     }
     else
@@ -450,10 +462,7 @@ drawGridY : function(){
       styles : init.arr,
       isMove : init.isMoveArr
     }
-    this.setState({json : JSON.stringify(json, null, '\t')})
-  },
-  drawIsMove : function(x,y){
-   
+    this.setState({json : JSON.stringify(json, null, '\t'),jsonParse:json,objectNum: init.arr.length-1,mapObjects:mapObjects})
   },
   mapMove : function(){
     if(!init.alt){
@@ -467,6 +476,74 @@ drawGridY : function(){
     if(init.map.down){
     this.setState({mapTop: this.state.mapTop-this.props.down});
   }
+    }
+  },
+  handelMapFalse : function(){
+    $(window).off('keydown',this.mapKeyDown);
+    $(window).off('keyup',this.mapKeyUp);
+  },
+  handelMapTrue : function(){
+    $(window).on('keydown',this.mapKeyDown);
+    $(window).on('keyup',this.mapKeyUp);
+
+  },
+  handleObjectId : function(e){ 
+    var l;
+    if(this.state.mapObjects != 3)
+      l = this.state.jsonParse.styles.length;
+    else
+      l = this.state.jsonParse.isMove.length;
+    if(!isNaN(Math.floor(e.target.value)) && e.target.value < l && e.target.value >= 0)
+      this.setState({objectNum : Math.floor(e.target.value)});
+  },
+  handleObjectsName : function(e){
+    var json = this.state.jsonParse;
+    if(this.state.mapObjects == 3)
+      json.styles[this.state.objectNum].n = e.target.value;
+    else
+      json.isMove[this.state.objectNum].n = e.target.value;
+    this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
+  },
+  handleObjectsX : function(e){
+    if(!isNaN(e.target.value)){
+    var json = this.state.jsonParse;
+    json.styles[this.state.objectNum].x = e.target.value;
+    this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
+  }
+  },
+  handleObjectsY : function(e){
+    if(!isNaN(e.target.value)){
+    var json = this.state.jsonParse;
+    json.styles[this.state.objectNum].y = e.target.value;
+    this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
+    }
+  },
+  handleObjectsW : function(e){
+    if(!isNaN(e.target.value)){
+    var json = this.state.jsonParse;
+    json.styles[this.state.objectNum].w = e.target.value;
+    this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
+    }
+  },
+  handleObjectsH : function(e){
+    if(!isNaN(e.target.value)){
+    var json = this.state.jsonParse;
+    json.styles[this.state.objectNum].h = e.target.value;
+    this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
+    }
+  },
+  handleObjectsSX : function(e){
+    if(!isNaN(e.target.value)){
+    var json = this.state.jsonParse;
+    json.styles[this.state.objectNum].h = e.target.value;
+    this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
+    }
+  },
+  handleObjectsSY : function(e){
+    if(!isNaN(e.target.value)){
+    var json = this.state.jsonParse;
+    json.styles[this.state.objectNum].h = e.target.value;
+    this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
     }
   },
   componentDidMount: function () {
@@ -485,37 +562,109 @@ drawGridY : function(){
     this.timer = setInterval(this.mapMove.bind(this), init.mapSetinterval);
   },
   render : function(){
+    var s =this.state;
+    var map;
+    switch(s.mapObjects){
+      case 1 :
+        map = "前層";
+        break;
+      case 2 :
+        map = "後層";
+        break;
+      case 3 :
+        map = "碰撞區域";
+        break;
+    }
    return (
-    <body >
+    <div id="container" >
      <div id="map"  style={{
-     WebkitTransform : 'translate3D('+this.state.mapLeft*this.props.map.sX+'px,'+this.state.mapTop*this.props.map.sY+'px,0)',
-     msTransform : 'translate3D('+this.state.mapLeft*this.props.map.sX+'px,'+this.state.mapTop*this.props.map.sY+'px,0)',
-     transform : 'translate3D('+this.state.mapLeft*this.props.map.sX+'px,'+this.state.mapTop*this.props.map.sY+'px,0)',
-     width:this.state.width,
-     height:this.state.height
+     WebkitTransform : 'translate3D('+s.mapLeft*this.props.map.sX+'px,'+s.mapTop*this.props.map.sY+'px,0)',
+     msTransform : 'translate3D('+s.mapLeft*this.props.map.sX+'px,'+s.mapTop*this.props.map.sY+'px,0)',
+     transform : 'translate3D('+s.mapLeft*this.props.map.sX+'px,'+s.mapTop*this.props.map.sY+'px,0)',
+     width:s.width,
+     height:s.height
 }} onMouseDown={this.drawDown} onMouseMove={this.drawMove} onMouseUp={this.drawUp} onContextMenu={this.contextMenu}>
-          <canvas width={this.state.width} height={this.state.height} style={{opacity : this.state.opacityB}} id="objectBack" />
-          <canvas width={this.state.width} height={this.state.height} style={{opacity : this.state.opacityF}} id="objectFront" />
-          <canvas width={this.state.width} height={this.state.height} style={{opacity : this.state.opacityM}} id="objectIsMove" />
-     <canvas width={this.state.width} height={this.state.height} id="grid" />
+          <canvas width={s.width} height={s.height} style={{opacity : s.opacityB}} id="objectBack" />
+          <canvas width={s.width} height={s.height} style={{opacity : s.opacityF}} id="objectFront" />
+          <canvas width={s.width} height={s.height} style={{opacity : s.opacityM}} id="objectIsMove" />
+     <canvas width={s.width} height={s.height} id="grid" />
      </div>
      <Sprites style={{
-     WebkitTransform : 'translateY('+this.state.sprite.top*this.props.map.sY+'px)',
-     msTransform : 'translateY('+this.state.sprite.top*this.props.map.sY+'px)',
-     transform : 'translateY('+this.state.sprite.top*this.props.map.sY+'px)'}}onWheel={this.handleWheel} onMouseDown={this.handleMouseDown} onContextMenu={this.contextMenu} >
+     WebkitTransform : 'translateY('+s.sprite.top*this.props.map.sY+'px)',
+     msTransform : 'translateY('+s.sprite.top*this.props.map.sY+'px)',
+     transform : 'translateY('+s.sprite.top*this.props.map.sY+'px)'}}onWheel={this.handleWheel} onMouseDown={this.handleMouseDown} onContextMenu={this.contextMenu} >
         <canvas  width="256" height="12000" id="spriteCanvas" />
-        <img src={this.state.spritesSrc}/>
+        <img src={s.spritesSrc}/>
      </Sprites>
       <Top>
-        <textarea  id="jsoncode" value={this.state.json}/>
+        <textarea  id="jsoncode" value={s.json}/>
         <textarea  id="jsontext" onChange={this.handleChange} placeholder="Object Json"/>
-        <input id ="spritesSrc" value={this.state.spritesSrc} onChange={this.handleSprite}  />
+        <input id ="spritesSrc" value={s.spritesSrc} onChange={this.handleSprite}  />
         <input id ="objectname" onChange={this.handleObjectName}  placeholder="Object Name"/>
         <input id ="mapWidth" onChange={this.mapWidth} value={this.state.width} />
         <input id ="mapHeight" onChange={this.mapHeight} value={this.state.height} />
      </Top>
-    </body> 
+      
+      {s.mapObjects != 3 && s.mapObjects !=null ? 
+        <Ui>
+          <label htmlFor="area">區域物件</label>
+          <input id="area" value={map} />
+          <label htmlFor="id">物件ID</label>
+          <input id="id" type="number" onChange={this.handleObjectId}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue}  value={s.objectNum} />
+          <label htmlFor="name">物件名</label>
+          <input id="name" onChange={this.handleObjectsName}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.styles[s.objectNum].n} />
+          <label htmlFor="x">X 座標</label>
+          <input id="x" onChange={this.handleObjectsX}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue}value={s.jsonParse.styles[s.objectNum].l} />
+          <label htmlFor="y">Y 座標</label>
+          <input id="y" onChange={this.handleObjectsY}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.styles[s.objectNum].t} />
+          <label htmlFor="width">物件寬</label>
+          <input id="width" onChange={this.handleObjectsW}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.styles[s.objectNum].w} />
+          <label htmlFor="height">物件高</label>
+          <input id="height" onChange={this.handleObjectsH}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.styles[s.objectNum].h} />
+          <label htmlFor="background">物件主圖</label>
+          <input id="background" value={s.jsonParse.styles[s.objectNum].b} />
+          <label htmlFor="spriteX">物件拼圖 X 座標</label>
+          <input id="spriteX" onChange={this.handleObjectsSX}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.styles[s.objectNum].x} />
+          <label htmlFor="spriteY">物件拼圖 Y 座標</label>
+          <input id="spriteY" onChange={this.handleObjectsSY}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.styles[s.objectNum].y} />
+          <label htmlFor="zindex">物件前後層</label>
+          <input id="zindex" value={s.jsonParse.styles[s.objectNum].z} />
+        </Ui>  : null}
+      {s.mapObjects == 3 ? 
+        <Ui>
+          <label htmlFor="area">區域物件</label>
+          <input id="area" value={map} />
+          <label htmlFor="id">物件ID</label>
+          <input id="id" onChange={this.handleObjectId} onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} type="number"  value={s.objectNum} />
+          <label htmlFor="name">物件名</label>
+          <input id="name" onChange={this.handleObjectsName} onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.isMove[s.objectNum].n} />
+          <label htmlFor="x">X 座標</label>
+          <input id="x" onChange={this.handleObjectsX}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.isMove[s.objectNum].x} />
+          <label htmlFor="y">Y 座標</label>
+          <input id="y" onChange={this.handleObjectsY}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.isMove[s.objectNum].y} />
+          <label htmlFor="width">物件寬</label>
+          <input id="width" onChange={this.handleObjectsW}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.isMove[s.objectNum].w} />
+          <label htmlFor="height">物件高</label>
+          <input id="height" onChange={this.handleObjectsH}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.isMove[s.objectNum].h} />
+          <label htmlFor="events">事件ID</label>
+          <input id="events" value={s.jsonParse.isMove[s.objectNum].e} />
+          <label htmlFor="inMap">入場圖</label>
+          <input id="inMap" value={s.jsonParse.isMove[s.objectNum].cm} />
+          <label htmlFor="inMapPoint">入場點</label>
+          <input id="inMapPoint" value={s.jsonParse.isMove[s.objectNum].cmm} />
+        </Ui>  : null}
+      
+    </div> 
    ) 
+  }
+});
+var Ui = React.createClass({
+  render : function(){
+    return(
+      <div className="ui">
+      {this.props.children}
+      </div>
+  )
   }
 });
 var map = React.render(<Root />,document.body)
