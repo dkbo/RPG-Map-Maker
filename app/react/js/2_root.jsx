@@ -60,7 +60,7 @@ var Root = React.createClass({
       spritesSrc : "http://dkbo.github.io/images/rpg_maker_xp.png"
     }
   },
-  handleMouseDown : function(e){
+  handleSpritesMouseDown : function(e){
     init.scontext.clearRect(0, 0, 256, 12000);
     if(e.button == 0){
 
@@ -69,7 +69,6 @@ var Root = React.createClass({
      var y = this.props.map.sY*Math.floor((e.clientY - 100 + this.props.map.sY * -this.state.sprite.top)/this.props.map.sY);
      var w = this.state.sourceW;
      var h = this.state.sourceH;
-     console.log(w)
      if(this.state.sourceX === false )
      this.setState({sourceX:x,sourceY:y})
      else {
@@ -159,32 +158,33 @@ var Root = React.createClass({
     e.preventDefault();
 },
   drawJson : function(x){
-    var xs = x.styles;
-    var s = this.state;
+    this.drawObjects(init.arr = x.styles);
+    this.drawIsMove(init.isMoveArr = x.isMove);
+    this.setState({json : JSON.stringify(x, null, '\t'),jsonParse : x,mapObjects: 1,objectNum: 0 })
+  },
+  drawObjects : function(x){
     var image = new Image();
-    init.fcontext.clearRect(0, 0, s.width, s.height);
-    init.bcontext.clearRect(0, 0, s.width, s.height);
-    init.mcontext.clearRect(0, 0, s.width, s.height);
-    for(var i=0;i<xs.length;i++){
-    if(this.drawJsonPreImg(xs[i].b)){
-    image.src = xs[i].b;
-    if(xs[i].z == 2)
-      init.fcontext.drawImage(image, xs[i].x , xs[i].y , xs[i].w, xs[i].h , xs[i].l,  xs[i].t ,  xs[i].w,  xs[i].h);
-    
+    init.fcontext.clearRect(0, 0, this.state.width, this.state.height);
+    init.bcontext.clearRect(0, 0, this.state.width, this.state.height);
+    for(var i=0;i<x.length;i++){
+    if(this.drawJsonPreImg(x[i].b)){
+    image.src = x[i].b;
+    if(x[i].z == 2)
+      init.fcontext.drawImage(image, x[i].x , x[i].y , x[i].w, x[i].h , x[i].l,  x[i].t ,  x[i].w,  x[i].h);
     else
-      init.bcontext.drawImage(image, xs[i].x , xs[i].y , xs[i].w, xs[i].h , xs[i].l,  xs[i].t ,  xs[i].w,  xs[i].h);
+      init.bcontext.drawImage(image, x[i].x , x[i].y , x[i].w, x[i].h , x[i].l,  x[i].t ,  x[i].w,  x[i].h);
  
     }
   }
-    for(var i=0;i<x.isMove.length;i++){
+  },
+  drawIsMove  :function(x){
+    init.mcontext.clearRect(0, 0, this.state.width, this.state.height);
+  for(var i=0;i<x.length;i++){
       init.mcontext.beginPath();
-      init.mcontext.rect(x.isMove[i].x,x.isMove[i].y, x.isMove[i].w,x.isMove[i].h);
+      init.mcontext.rect(x[i].x,x[i].y, x[i].w,x[i].h);
       init.mcontext.fillStyle = "rgba(27, 136, 224, 0.83)";
       init.mcontext.fill();
     }
-    init.arr = xs;
-    init.isMoveArr = x.isMove;
-    this.setState({json : JSON.stringify(x, null, '\t')})
   },
   drawJsonPreImg : function(x){
     var y = false;
@@ -226,6 +226,9 @@ var Root = React.createClass({
         break;
     } 
     }
+    else
+        this.findObjects(e);
+
    }
   },
 drawMove : function(e){
@@ -265,7 +268,27 @@ pushIsMove(){
       styles : init.arr,
       isMove : init.isMoveArr
     }
-  this.setState({json : JSON.stringify(json, null, '\t'),jsonParse:json,objectNum:init.isMoveArr.length-1,mapObjects:3})
+  this.setState({json : JSON.stringify(json, null, '\t'),jsonParse:json,objectNum:init.isMoveArr.length-1,mapObjects:2})
+},
+findObjects : function(e){
+  var s = this.state;
+  if(s.json){
+    var x = e.clientX -255 - (this.state.mapLeft*this.props.map.sX);
+    var y = e.clientY -100 - (this.state.mapTop*this.props.map.sY);
+    var z = 0;
+    if(e.button === 0){
+      for(var i=0;i<s.jsonParse.styles.length;i++){
+        if(s.jsonParse.styles[i].l <= x && x <= s.jsonParse.styles[i].l + s.jsonParse.styles[i].w && s.jsonParse.styles[i].t <= y && y <= s.jsonParse.styles[i].t + s.jsonParse.styles[i].h)
+          this.setState({objectNum : i ,mapObjects : 1});
+      }
+    }
+    if(e.button === 2){
+      for(var i=0;i<s.jsonParse.isMove.length;i++){
+        if(s.jsonParse.isMove[i].x <= x && x <= s.jsonParse.isMove[i].x + s.jsonParse.isMove[i].w && s.jsonParse.isMove[i].y <= y && y <= s.jsonParse.isMove[i].y + s.jsonParse.isMove[i].h)
+          this.setState({objectNum : i , mapObjects : 2});
+      }
+    }
+  } 
 },
   mapKeyDown : function(e){
         switch(e.keyCode){
@@ -307,6 +330,9 @@ pushIsMove(){
               init.map.down = true
               this.save();
               break;
+          case 73:
+              this.immediateSave();
+              break;
           case 76:
               this.load();
               break;
@@ -327,7 +353,6 @@ pushIsMove(){
           case 65:
               init.map.left = false
               break;
- 
           case 39:
               init.map.right = false
               break;
@@ -432,12 +457,15 @@ drawGridY : function(){
         styles : init.arr,
         isMove : init.isMoveArr
       }
-  this.setState({json: JSON.stringify(json, null, '\t'),jsonParse:json,mapObjects:null});
+  this.setState({json: null,jsonParse:json,mapObjects:null});
     }
+  },
+  immediateSave : function(){
+    if(init.alt)
+      init.immediate = init.immediate ? false : true;
   },
   draw : function(x,y,z){
     var s = this.state;
-    var mapObjects = 2;
     var image = new Image()
     image.src = this.state.spritesSrc;
     var json = {
@@ -452,7 +480,6 @@ drawGridY : function(){
     };
     if(z == 2){
       json.z = 2
-      mapObjects = 1
       init.fcontext.drawImage(image, s.sourceX , s.sourceY , s.sourceW, s.sourceH ,x, y , s.sourceW, s.sourceH);
     }
     else
@@ -462,10 +489,7 @@ drawGridY : function(){
       styles : init.arr,
       isMove : init.isMoveArr
     }
-    this.setState({json : JSON.stringify(json, null, '\t'),jsonParse:json,objectNum: init.arr.length-1,mapObjects:mapObjects})
-  },
-  drawIsMove : function(x,y){
-   
+    this.setState({json : JSON.stringify(json, null, '\t'),jsonParse:json,objectNum: init.arr.length-1,mapObjects: 1})
   },
   mapMove : function(){
     if(!init.alt){
@@ -496,7 +520,6 @@ drawGridY : function(){
     $(window).on('keyup',this.mapKeyUp);
     this.timer = setInterval(this.mapMove.bind(this), init.mapSetinterval);
   },
-
    handelMapFalse : function(){
     $(window).off('keydown',this.mapKeyDown);
     $(window).off('keyup',this.mapKeyUp);
@@ -505,9 +528,18 @@ drawGridY : function(){
     $(window).on('keydown',this.mapKeyDown);
     $(window).on('keyup',this.mapKeyUp);
   },
-  handleObjectId : function(e){ 
+  handleObjectsDraw : function(){
+    if(this.state.mapObjects == 2)
+      this.drawIsMove(this.state.jsonParse.isMove);
+    if(this.state.mapObjects == 1)
+      this.drawObjects(this.state.jsonParse.styles);
+  },
+  handleObjectsArea : function(e){ 
+      this.setState({objectNum : 0,mapObjects: this.state.mapObjects==2 ? 1 : 2});
+  },
+  handleObjectsId : function(e){ 
     var l;
-    if(this.state.mapObjects != 3)
+    if(this.state.mapObjects != 2)
       l = this.state.jsonParse.styles.length;
     else
       l = this.state.jsonParse.isMove.length;
@@ -515,10 +547,8 @@ drawGridY : function(){
       this.setState({objectNum : Math.floor(e.target.value)});
   },
   handleObjectsName : function(e){
-
     var json = this.state.jsonParse;
-    console.log(this.state.mapObjects)
-    if(this.state.mapObjects != 3)
+    if(this.state.mapObjects != 2)
       json.styles[this.state.objectNum].n = e.target.value;
     else
       json.isMove[this.state.objectNum].n = e.target.value;
@@ -527,41 +557,49 @@ drawGridY : function(){
   handleObjectsX : function(e){
     if(!isNaN(e.target.value)){
     var json = this.state.jsonParse;
-    if(this.state.mapObjects != 3)
+    if(this.state.mapObjects != 2)
       json.styles[this.state.objectNum].l = e.target.value;
     else
       json.isMove[this.state.objectNum].x = e.target.value;
     this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
+    if(init.immediate)
+      this.handleObjectsDraw();
   }
   },
   handleObjectsY : function(e){
     if(!isNaN(e.target.value)){
     var json = this.state.jsonParse;
-    if(this.state.mapObjects != 3)
+    if(this.state.mapObjects != 2)
       json.styles[this.state.objectNum].t = e.target.value;
     else
       json.isMove[this.state.objectNum].y = e.target.value;
     this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
+    if(init.immediate)
+      this.handleObjectsDraw();
     }
   },
   handleObjectsW : function(e){
     if(!isNaN(e.target.value)){
     var json = this.state.jsonParse;
-    if(this.state.mapObjects != 3)
+    if(this.state.mapObjects != 2)
       json.styles[this.state.objectNum].w = e.target.value;
     else
       json.isMove[this.state.objectNum].w = e.target.value;
     this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
+    if(init.immediate)
+      this.handleObjectsDraw();
     }
   },
   handleObjectsH : function(e){
     if(!isNaN(e.target.value)){
     var json = this.state.jsonParse;
-    if(this.state.mapObjects != 3)
+    if(this.state.mapObjects != 2)
       json.styles[this.state.objectNum].h = e.target.value;
     else
       json.isMove[this.state.objectNum].h = e.target.value;
     this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
+    if(init.immediate)
+      this.handleObjectsDraw();
     }
   },
   handleObjectsSX : function(e){
@@ -569,6 +607,8 @@ drawGridY : function(){
     var json = this.state.jsonParse;
     json.styles[this.state.objectNum].x = e.target.value;
     this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
+    if(init.immediate)
+      this.handleObjectsDraw();
     }
   },
   handleObjectsSY : function(e){
@@ -576,6 +616,8 @@ drawGridY : function(){
     var json = this.state.jsonParse;
     json.styles[this.state.objectNum].y = e.target.value;
     this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
+    if(init.immediate)
+      this.handleObjectsDraw();
     }
   },
   handleObjectsE : function(e){
@@ -601,18 +643,6 @@ drawGridY : function(){
   },
   render : function(){
     var s =this.state;
-     var map;
-    switch(s.mapObjects){
-      case 1 :
-        map = "前層";
-        break;
-      case 2 :
-        map = "後層";
-        break;
-      case 3 :
-        map = "碰撞區域";
-        break;
-    }
    return (
     <div id="container" >
       <div id="map"  style={{
@@ -630,7 +660,7 @@ drawGridY : function(){
      <Sprites style={{
      WebkitTransform : 'translateY('+s.sprite.top*this.props.map.sY+'px)',
      msTransform : 'translateY('+s.sprite.top*this.props.map.sY+'px)',
-     transform : 'translateY('+s.sprite.top*this.props.map.sY+'px)'}} onWheel={this.handleWheel} onMouseDown={this.handleMouseDown} onContextMenu={this.contextMenu} >
+     transform : 'translateY('+s.sprite.top*this.props.map.sY+'px)'}} onWheel={this.handleWheel} onMouseDown={this.handleSpritesMouseDown} onContextMenu={this.contextMenu} >
         <canvas  width="256" height="12000" id="spriteCanvas" />
         <img src={s.spritesSrc} />
      </Sprites>
@@ -642,14 +672,17 @@ drawGridY : function(){
         <input id ="mapWidth" onChange={this.mapWidth} value={s.width} />
         <input id ="mapHeight" onChange={this.mapHeight} value={s.height} />
      </Top>
-      {s.mapObjects != 3 && s.mapObjects !=null ? 
+      {s.mapObjects != 2 && s.mapObjects !=null ? 
         <Ui>
-          <label htmlFor="del">刪除</label>
           <input id="del" type="button" value="刪除" />
-          <label htmlFor="area">區域物件</label>
-          <input id="area" value={map} />
+          <input id="draw" type="button" value="畫圖" onClick={this.handleObjectsDraw} />
+          <label htmlFor="area">區域層</label>
+          <select id="area" onChange={this.handleObjectsArea}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue}>
+            <option value="1" selected>物件區域</option>
+            <option value="2">碰撞區域</option>
+          </select>
           <label htmlFor="id">物件ID</label>
-          <input id="id" type="number" onChange={this.handleObjectId}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue}  value={s.objectNum} />
+          <input id="id" type="number" onChange={this.handleObjectsId}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue}  value={s.objectNum} />
           <label htmlFor="name">物件名</label>
           <input id="name" onChange={this.handleObjectsName}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.styles[s.objectNum].n} />
           <label htmlFor="x">X 座標</label>
@@ -669,12 +702,17 @@ drawGridY : function(){
           <label htmlFor="zindex">物件前後層</label>
           <input id="zindex" value={s.jsonParse.styles[s.objectNum].z} />
         </Ui>  : null}
-      {s.mapObjects == 3 ? 
+      {s.mapObjects == 2 ? 
         <Ui>
+          <input id="del" type="button" value="刪除" />
+          <input id="draw" type="button" value="畫圖" onClick={this.handleObjectsDraw} />
           <label htmlFor="area">區域物件</label>
-          <input id="area" value={map} />
+          <select id="area" onChange={this.handleObjectsArea}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue}>
+            <option value="1">物件區域</option>
+            <option value="2" selected>碰撞區域</option>
+          </select>
           <label htmlFor="id">物件ID</label>
-          <input id="id" type="number" onChange={this.handleObjectId} onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} type="number"  value={s.objectNum} />
+          <input id="id" type="number" onChange={this.handleObjecstId} onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} type="number"  value={s.objectNum} />
           <label htmlFor="name">物件名</label>
           <input id="name" onChange={this.handleObjectsName} onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.isMove[s.objectNum].n} />
           <label htmlFor="x">X 座標</label>
