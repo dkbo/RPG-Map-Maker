@@ -63,11 +63,13 @@ var Root = React.createClass({
   handleMouseDown : function(e){
     init.scontext.clearRect(0, 0, 256, 12000);
     if(e.button == 0){
+
      var height = window.innerHeight;
      var x = this.props.map.sX*Math.floor(e.clientX/this.props.map.sX);
      var y = this.props.map.sY*Math.floor((e.clientY - 100 + this.props.map.sY * -this.state.sprite.top)/this.props.map.sY);
      var w = this.state.sourceW;
      var h = this.state.sourceH;
+     console.log(w)
      if(this.state.sourceX === false )
      this.setState({sourceX:x,sourceY:y})
      else {
@@ -78,7 +80,7 @@ var Root = React.createClass({
        else{
          w = this.state.sourceX - x +this.props.map.sX              
        }
-       if(y > this.state.sourceX){
+       if(y > this.state.sourceY){
          h = y-this.state.sourceY + this.props.map.sY;
          y = this.state.sourceY;
        }
@@ -96,7 +98,7 @@ var Root = React.createClass({
      init.scontext.rect(x, y, w, h);
      init.scontext.fillStyle = "rgba(27, 136, 224, 0.53)";
      init.scontext.fill();
-     init.scontext.lineWidth = 2;
+     init.scontext.lineWidth = 1;
      init.scontext.strokeStyle = 'black';
      init.scontext.stroke();
     }
@@ -142,9 +144,8 @@ var Root = React.createClass({
   },
   isReaptImg : function(x){
     for(var i=0;i<init.img.length;i++){
-      if(init.img[i] === x){
+      if(init.img[i] === x)
         return false
-      }
     }
     return true
   },
@@ -160,6 +161,7 @@ var Root = React.createClass({
   drawJson : function(x){
     var xs = x.styles;
     var s = this.state;
+    var image = new Image();
     init.fcontext.clearRect(0, 0, s.width, s.height);
     init.bcontext.clearRect(0, 0, s.width, s.height);
     init.mcontext.clearRect(0, 0, s.width, s.height);
@@ -193,7 +195,7 @@ var Root = React.createClass({
         }
     }
     if(!y){
-      img = new Image();
+      var img = new Image();
       img.onload = function(){
         return y
       }.bind(this);
@@ -436,6 +438,7 @@ drawGridY : function(){
   draw : function(x,y,z){
     var s = this.state;
     var mapObjects = 2;
+    var image = new Image()
     image.src = this.state.spritesSrc;
     var json = {
       n : init.objectName,
@@ -512,8 +515,10 @@ drawGridY : function(){
       this.setState({objectNum : Math.floor(e.target.value)});
   },
   handleObjectsName : function(e){
+
     var json = this.state.jsonParse;
-    if(this.state.mapObjects == 3)
+    console.log(this.state.mapObjects)
+    if(this.state.mapObjects != 3)
       json.styles[this.state.objectNum].n = e.target.value;
     else
       json.isMove[this.state.objectNum].n = e.target.value;
@@ -522,42 +527,75 @@ drawGridY : function(){
   handleObjectsX : function(e){
     if(!isNaN(e.target.value)){
     var json = this.state.jsonParse;
-    json.styles[this.state.objectNum].x = e.target.value;
+    if(this.state.mapObjects != 3)
+      json.styles[this.state.objectNum].l = e.target.value;
+    else
+      json.isMove[this.state.objectNum].x = e.target.value;
     this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
   }
   },
   handleObjectsY : function(e){
     if(!isNaN(e.target.value)){
     var json = this.state.jsonParse;
-    json.styles[this.state.objectNum].y = e.target.value;
+    if(this.state.mapObjects != 3)
+      json.styles[this.state.objectNum].t = e.target.value;
+    else
+      json.isMove[this.state.objectNum].y = e.target.value;
     this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
     }
   },
   handleObjectsW : function(e){
     if(!isNaN(e.target.value)){
     var json = this.state.jsonParse;
-    json.styles[this.state.objectNum].w = e.target.value;
+    if(this.state.mapObjects != 3)
+      json.styles[this.state.objectNum].w = e.target.value;
+    else
+      json.isMove[this.state.objectNum].w = e.target.value;
     this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
     }
   },
   handleObjectsH : function(e){
     if(!isNaN(e.target.value)){
     var json = this.state.jsonParse;
-    json.styles[this.state.objectNum].h = e.target.value;
+    if(this.state.mapObjects != 3)
+      json.styles[this.state.objectNum].h = e.target.value;
+    else
+      json.isMove[this.state.objectNum].h = e.target.value;
     this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
     }
   },
   handleObjectsSX : function(e){
     if(!isNaN(e.target.value)){
     var json = this.state.jsonParse;
-    json.styles[this.state.objectNum].h = e.target.value;
+    json.styles[this.state.objectNum].x = e.target.value;
     this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
     }
   },
   handleObjectsSY : function(e){
     if(!isNaN(e.target.value)){
     var json = this.state.jsonParse;
-    json.styles[this.state.objectNum].h = e.target.value;
+    json.styles[this.state.objectNum].y = e.target.value;
+    this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
+    }
+  },
+  handleObjectsE : function(e){
+    if(!isNaN(e.target.value)){
+    var json = this.state.jsonParse;
+    json.isMove[this.state.objectNum].e = e.target.value;
+    this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
+    }
+  },
+  handleObjectsCM : function(e){
+    if(!isNaN(e.target.value)){
+    var json = this.state.jsonParse;
+    json.isMove[this.state.objectNum].cm = e.target.value;
+    this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
+    }
+  },
+  handleObjectsCMM : function(e){
+    if(!isNaN(e.target.value)){
+    var json = this.state.jsonParse;
+    json.isMove[this.state.objectNum].cmm = e.target.value;
     this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
     }
   },
@@ -606,6 +644,8 @@ drawGridY : function(){
      </Top>
       {s.mapObjects != 3 && s.mapObjects !=null ? 
         <Ui>
+          <label htmlFor="del">刪除</label>
+          <input id="del" type="button" value="刪除" />
           <label htmlFor="area">區域物件</label>
           <input id="area" value={map} />
           <label htmlFor="id">物件ID</label>
@@ -613,19 +653,19 @@ drawGridY : function(){
           <label htmlFor="name">物件名</label>
           <input id="name" onChange={this.handleObjectsName}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.styles[s.objectNum].n} />
           <label htmlFor="x">X 座標</label>
-          <input id="x" onChange={this.handleObjectsX}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue}value={s.jsonParse.styles[s.objectNum].l} />
+          <input id="x" type="number" onChange={this.handleObjectsX}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue}value={s.jsonParse.styles[s.objectNum].l} />
           <label htmlFor="y">Y 座標</label>
-          <input id="y" onChange={this.handleObjectsY}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.styles[s.objectNum].t} />
+          <input id="y" type="number" onChange={this.handleObjectsY}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.styles[s.objectNum].t} />
           <label htmlFor="width">物件寬</label>
-          <input id="width" onChange={this.handleObjectsW}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.styles[s.objectNum].w} />
+          <input id="width" type="number" onChange={this.handleObjectsW}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.styles[s.objectNum].w} />
           <label htmlFor="height">物件高</label>
-          <input id="height" onChange={this.handleObjectsH}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.styles[s.objectNum].h} />
+          <input id="height" type="number" onChange={this.handleObjectsH}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.styles[s.objectNum].h} />
           <label htmlFor="background">物件主圖</label>
           <input id="background" value={s.jsonParse.styles[s.objectNum].b} />
           <label htmlFor="spriteX">物件拼圖 X 座標</label>
-          <input id="spriteX" onChange={this.handleObjectsSX}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.styles[s.objectNum].x} />
+          <input id="spriteX" type="number"  onChange={this.handleObjectsSX}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.styles[s.objectNum].x} />
           <label htmlFor="spriteY">物件拼圖 Y 座標</label>
-          <input id="spriteY" onChange={this.handleObjectsSY}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.styles[s.objectNum].y} />
+          <input id="spriteY" type="number"  onChange={this.handleObjectsSY}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.styles[s.objectNum].y} />
           <label htmlFor="zindex">物件前後層</label>
           <input id="zindex" value={s.jsonParse.styles[s.objectNum].z} />
         </Ui>  : null}
@@ -634,23 +674,23 @@ drawGridY : function(){
           <label htmlFor="area">區域物件</label>
           <input id="area" value={map} />
           <label htmlFor="id">物件ID</label>
-          <input id="id" onChange={this.handleObjectId} onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} type="number"  value={s.objectNum} />
+          <input id="id" type="number" onChange={this.handleObjectId} onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} type="number"  value={s.objectNum} />
           <label htmlFor="name">物件名</label>
           <input id="name" onChange={this.handleObjectsName} onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.isMove[s.objectNum].n} />
           <label htmlFor="x">X 座標</label>
-          <input id="x" onChange={this.handleObjectsX}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.isMove[s.objectNum].x} />
+          <input id="x" type="number" onChange={this.handleObjectsX}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.isMove[s.objectNum].x} />
           <label htmlFor="y">Y 座標</label>
-          <input id="y" onChange={this.handleObjectsY}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.isMove[s.objectNum].y} />
+          <input id="y" type="number" onChange={this.handleObjectsY}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.isMove[s.objectNum].y} />
           <label htmlFor="width">物件寬</label>
-          <input id="width" onChange={this.handleObjectsW}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.isMove[s.objectNum].w} />
+          <input id="width" type="number" onChange={this.handleObjectsW}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.isMove[s.objectNum].w} />
           <label htmlFor="height">物件高</label>
-          <input id="height" onChange={this.handleObjectsH}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.isMove[s.objectNum].h} />
+          <input id="height" type="number" onChange={this.handleObjectsH}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.isMove[s.objectNum].h} />
           <label htmlFor="events">事件ID</label>
-          <input id="events" value={s.jsonParse.isMove[s.objectNum].e} />
+          <input id="events" type="number" onChange={this.handleObjectsH}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.isMove[s.objectNum].h} value={s.jsonParse.isMove[s.objectNum].e} />
           <label htmlFor="inMap">入場圖</label>
-          <input id="inMap" value={s.jsonParse.isMove[s.objectNum].cm} />
+          <input id="inMap" type="number" onChange={this.handleObjectsH}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.isMove[s.objectNum].h} value={s.jsonParse.isMove[s.objectNum].cm} />
           <label htmlFor="inMapPoint">入場點</label>
-          <input id="inMapPoint" value={s.jsonParse.isMove[s.objectNum].cmm} />
+          <input id="inMapPoint" type="number" onChange={this.handleObjectsH}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.isMove[s.objectNum].h}  value={s.jsonParse.isMove[s.objectNum].cmm} />
         </Ui>  : null}  
     </div>
    ) 

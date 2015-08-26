@@ -1,5 +1,4 @@
 var init = {};
-var image = new Image();
 init.wheelSpeed = 4
 init.moveSpeed = 1;
 init.mapSetinterval = 1000/60;
