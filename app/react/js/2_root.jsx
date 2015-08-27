@@ -580,13 +580,14 @@ drawGridY : function(){
       this.setState({objectNum : 0,mapObjects: this.state.mapObjects==2 ? 1 : 2});
   },
   handleObjectsId : function(e){ 
+    var x = Number(e.target.value);
     var arr = [];
     if(this.state.mapObjects == 1)
       arr = this.state.jsonParse.styles;
     if(this.state.mapObjects == 2)
       arr = this.state.jsonParse.isMove;
-    if(!isNaN(Math.floor(e.target.value)) && e.target.value < arr.length && e.target.value >= 0){
-      this.setState({objectNum : Math.floor(e.target.value)},function(){
+    if(!isNaN(Math.floor(x)) && x < arr.length && x >= 0){
+      this.setState({objectNum : Math.floor(x)},function(){
         var x =arr[this.state.objectNum];
         if(this.state.mapObjects == 1)
           this.drawObjectsSelect(x.l,x.t,x.w,x.h);
@@ -604,96 +605,105 @@ drawGridY : function(){
     this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
   },
   handleObjectsX : function(e){
-    if(!isNaN(e.target.value)){
+    var x = Number(e.target.value);
+    if(!isNaN(x)){
     var json = this.state.jsonParse;
     if(this.state.mapObjects != 2)
-      json.styles[this.state.objectNum].l = e.target.value;
+      json.styles[this.state.objectNum].l = x;
     else
-      json.isMove[this.state.objectNum].x = e.target.value;
+      json.isMove[this.state.objectNum].x = x;
     this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
     if(init.immediate)
       this.handleObjectsDraw();
   }
   },
   handleObjectsY : function(e){
-    if(!isNaN(e.target.value)){
+    var x = Number(e.target.value);
+    if(!isNaN(x)){
     var json = this.state.jsonParse;
     if(this.state.mapObjects != 2)
-      json.styles[this.state.objectNum].t = e.target.value;
+      json.styles[this.state.objectNum].t = x;
     else
-      json.isMove[this.state.objectNum].y = e.target.value;
+      json.isMove[this.state.objectNum].y = x;
     this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
     if(init.immediate)
       this.handleObjectsDraw();
     }
   },
   handleObjectsW : function(e){
-    if(!isNaN(e.target.value)){
+    var x = Number(e.target.value);
+    if(!isNaN(x)){
     var json = this.state.jsonParse;
     if(this.state.mapObjects != 2)
-      json.styles[this.state.objectNum].w = e.target.value;
+      json.styles[this.state.objectNum].w = x;
     else
-      json.isMove[this.state.objectNum].w = e.target.value;
+      json.isMove[this.state.objectNum].w = x;
     this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
     if(init.immediate)
       this.handleObjectsDraw();
     }
   },
   handleObjectsH : function(e){
-    if(!isNaN(e.target.value)){
+    var x = Number(e.target.value);
+    if(!isNaN(x)){
     var json = this.state.jsonParse;
     if(this.state.mapObjects != 2)
-      json.styles[this.state.objectNum].h = e.target.value;
+      json.styles[this.state.objectNum].h = x;
     else
-      json.isMove[this.state.objectNum].h = e.target.value;
+      json.isMove[this.state.objectNum].h = x;
     this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
     if(init.immediate)
       this.handleObjectsDraw();
     }
   },
   handleObjectsSX : function(e){
-    if(!isNaN(e.target.value)){
+    var x = Number(e.target.value);
+    if(!isNaN(x)){
     var json = this.state.jsonParse;
-    json.styles[this.state.objectNum].x = e.target.value;
+    json.styles[this.state.objectNum].x = x;
     this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
     if(init.immediate)
       this.handleObjectsDraw();
     }
   },
   handleObjectsSY : function(e){
-    if(!isNaN(e.target.value)){
+    var x = Number(e.target.value);
+    if(!isNaN(x)){
     var json = this.state.jsonParse;
-    json.styles[this.state.objectNum].y = e.target.value;
+    json.styles[this.state.objectNum].y = x;
     this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
     if(init.immediate)
       this.handleObjectsDraw();
     }
   },
   handleObjectsE : function(e){
-    if(!isNaN(e.target.value)){
+    var x = Number(e.target.value);
+    if(!isNaN(x)){
       var json = this.state.jsonParse;
-      if(e.target.value != '')
-        json.isMove[this.state.objectNum].e = e.target.value;
+      if(e.target.value >= 0)
+        json.isMove[this.state.objectNum].e = x;
       else
         delete json.isMove[this.state.objectNum].e
       this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
     }
   },
   handleObjectsCM : function(e){
-    if(!isNaN(e.target.value)){
+    var x = Number(e.target.value);
+    if(!isNaN(x)){
       var json = this.state.jsonParse;
-      if(e.target.value != '')
-        json.isMove[this.state.objectNum].cm = e.target.value;
+      if(e.target.value >= 0)
+        json.isMove[this.state.objectNum].cm = x;
       else
         delete json.isMove[this.state.objectNum].cm
       this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
     }
   },
   handleObjectsCMM : function(e){
-    if(!isNaN(e.target.value)){
+    var x = Number(e.target.value);
+    if(!isNaN(x)){
       var json = this.state.jsonParse;
-      if(e.target.value != '')
-        json.isMove[this.state.objectNum].cmm = e.target.value;
+      if(e.target.value >= 0)
+        json.isMove[this.state.objectNum].cmm = x;
       else
         delete json.isMove[this.state.objectNum].cmm
       this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
