@@ -205,6 +205,7 @@ var Root = React.createClass({
     return y
   },
   drawDown : function(e){
+    init.oscontext.clearRect(0,0,this.state.width,this.state.height);
     var x = (Math.floor((e.clientX - 256 -this.state.mapLeft*this.props.map.sX)/this.props.map.sX)*this.props.map.sX)
     var y = (Math.floor((e.clientY - 100 -this.state.mapTop*this.props.map.sY)/this.props.map.sY)*this.props.map.sY)
     if(this.state.sourceX !== false){
@@ -238,7 +239,6 @@ drawMove : function(e){
     init.mouseMoveY  = e.clientY > init.mouseDownY ? init.mouseDownY-100 - (this.state.mapTop*this.props.map.sY): e.clientY-100 - (this.state.mapTop*this.props.map.sY);
     init.mouseMoveW  = e.clientX - init.mouseDownX > 0 ? e.clientX - init.mouseDownX : init.mouseDownX -e.clientX;
     init.mouseMoveH  = e.clientY - init.mouseDownY > 0 ? e.clientY - init.mouseDownY : init.mouseDownY -e.clientY; 
-    
     init.mcontext.beginPath();
     init.mcontext.rect(init.mouseMoveX, init.mouseMoveY, init.mouseMoveW, init.mouseMoveH);
     init.mcontext.fillStyle = "rgba(27, 136, 224, 0.83)";
@@ -268,27 +268,48 @@ pushIsMove(){
       styles : init.arr,
       isMove : init.isMoveArr
     }
+  this.drawObjectsSelect(x.x,x.y,x.w,x.h);
   this.setState({json : JSON.stringify(json, null, '\t'),jsonParse:json,objectNum:init.isMoveArr.length-1,mapObjects:2})
 },
 findObjects : function(e){
   var s = this.state;
   if(s.json){
+    var l;
     var x = e.clientX -255 - (this.state.mapLeft*this.props.map.sX);
     var y = e.clientY -100 - (this.state.mapTop*this.props.map.sY);
     var z = 0;
     if(e.button === 0){
-      for(var i=0;i<s.jsonParse.styles.length;i++){
-        if(s.jsonParse.styles[i].l <= x && x <= s.jsonParse.styles[i].l + s.jsonParse.styles[i].w && s.jsonParse.styles[i].t <= y && y <= s.jsonParse.styles[i].t + s.jsonParse.styles[i].h)
+      var arr = this.state.jsonParse.styles;
+      for(var i=0;i< arr.length;i++){
+        if(arr[i].l <= x && x <= arr[i].l + arr[i].w && arr[i].t <= y && y <= arr[i].t + arr[i].h){
           this.setState({objectNum : i ,mapObjects : 1});
+          l = i;
+        }
       }
+      if(l>=0)
+      this.drawObjectsSelect(arr[l].l , arr[l].t , arr[l].w , arr[l].h);
     }
     if(e.button === 2){
-      for(var i=0;i<s.jsonParse.isMove.length;i++){
-        if(s.jsonParse.isMove[i].x <= x && x <= s.jsonParse.isMove[i].x + s.jsonParse.isMove[i].w && s.jsonParse.isMove[i].y <= y && y <= s.jsonParse.isMove[i].y + s.jsonParse.isMove[i].h)
+      var arr = this.state.jsonParse.isMove;
+      for(var i=0;i< arr.length;i++){
+        if(arr[i].x <= x && x <= arr[i].x + arr[i].w && arr[i].y <= y && y <= arr[i].y + arr[i].h){
           this.setState({objectNum : i , mapObjects : 2});
+          l = i;
+        }
       }
+      if(l>=0)
+      this.drawObjectsSelect(arr[l].x , arr[l].y , arr[l].w , arr[l].h);
     }
-  } 
+  }
+},
+drawObjectsSelect : function(x,y,w,h){
+      init.oscontext.beginPath();
+      init.oscontext.rect(x,y,w,h);
+      init.oscontext.fillStyle = "rgba(255, 255, 255, 0.23)";
+      init.oscontext.fill();
+      init.oscontext.lineWidth = 1;
+      init.oscontext.strokeStyle = 'black';
+      init.oscontext.stroke();
 },
   mapKeyDown : function(e){
         switch(e.keyCode){
@@ -332,6 +353,9 @@ findObjects : function(e){
               break;
           case 73:
               this.immediateSave();
+              break;
+          case 46:
+              this.handleObjectsRemove();
               break;
           case 76:
               this.load();
@@ -444,24 +468,24 @@ drawGridY : function(){
   },
   clear : function(){
     if(init.alt){
+      init.oscontext.clearRect(0,0,this.state.width,this.state.height);
       if(this.state.opacityF && this.state.opacityB){
         init.fcontext.clearRect(0, 0, this.state.width, this.state.height);
         init.bcontext.clearRect(0, 0, this.state.width, this.state.height);
-        init.arr = [];
+        init.arr.length = 0;
       }
       if(this.state.opacityM){
         init.mcontext.clearRect(0, 0, this.state.width, this.state.height);
-        init.isMoveArr =[];
+        init.isMoveArr.length =0;
       }
       var json ={
         styles : init.arr,
         isMove : init.isMoveArr
       }
-  this.setState({json: null,jsonParse:json,mapObjects:null});
+  this.setState({json: null,jsonParse:json, mapObjects:null});
     }
   },
   immediateSave : function(){
-    if(init.alt)
       init.immediate = init.immediate ? false : true;
   },
   draw : function(x,y,z){
@@ -484,6 +508,7 @@ drawGridY : function(){
     }
     else
       init.bcontext.drawImage(image, s.sourceX , s.sourceY , s.sourceW, s.sourceH ,x, y , s.sourceW, s.sourceH);
+    this.drawObjectsSelect(x,y,s.sourceW,s.sourceH);
     init.arr.push(json)
     json = {
       styles : init.arr,
@@ -510,28 +535,47 @@ drawGridY : function(){
     var bCanvas = document.getElementById('objectBack');
     var mCanvas = document.getElementById('objectIsMove');
     var sCanvas = document.getElementById('spriteCanvas');
+    var osCanvas =document.getElementById('objectSelect');
     var gCanvas = document.getElementById('grid');
     init.fcontext = fCanvas.getContext('2d');
     init.bcontext = bCanvas.getContext('2d');
     init.mcontext = mCanvas.getContext('2d');
     init.scontext = sCanvas.getContext('2d');
+    init.oscontext = osCanvas.getContext('2d');
     init.gcontext = gCanvas.getContext('2d');
     $(window).on('keydown',this.mapKeyDown);
     $(window).on('keyup',this.mapKeyUp);
     this.timer = setInterval(this.mapMove.bind(this), init.mapSetinterval);
-  },
+},
    handelMapFalse : function(){
     $(window).off('keydown',this.mapKeyDown);
     $(window).off('keyup',this.mapKeyUp);
-  },
+},
   handelMapTrue : function(){
     $(window).on('keydown',this.mapKeyDown);
     $(window).on('keyup',this.mapKeyUp);
-  },
-  handleObjectsDraw : function(){
-    if(this.state.mapObjects == 2)
+},
+  handleObjectsRemove : function(){
+    if(this.state.mapObjects){
+    init.oscontext.clearRect(0,0,this.state.width,this.state.height);
+    var json = this.state.jsonParse;
+    var x = this.state.mapObjects
+    switch(x){
+      case 2:
+        var remove = json.isMove.splice(this.state.objectNum,1);
+        break;
+      case 1:
+        var remove = json.styles.splice(this.state.objectNum,1);
+        break;
+    }
+      this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json,mapObjects : null})
+      this.handleObjectsDraw(x);
+  }
+},
+  handleObjectsDraw : function(x){
+    if(this.state.mapObjects == 2 || x == 2)
       this.drawIsMove(this.state.jsonParse.isMove);
-    if(this.state.mapObjects == 1)
+    if(this.state.mapObjects == 1 || x == 1)
       this.drawObjects(this.state.jsonParse.styles);
   },
   handleObjectsArea : function(e){ 
@@ -655,6 +699,7 @@ drawGridY : function(){
         <canvas width={s.width} height={s.height} style={{opacity : s.opacityB}} id="objectBack" />
         <canvas width={s.width} height={s.height} style={{opacity : s.opacityF}} id="objectFront" />
         <canvas width={s.width} height={s.height} style={{opacity : s.opacityM}} id="objectIsMove" />
+        <canvas width={s.width} height={s.height} id="objectSelect" />
         <canvas width={s.width} height={s.height} id="grid" />
       </div>
      <Sprites style={{
@@ -674,7 +719,7 @@ drawGridY : function(){
      </Top>
       {s.mapObjects != 2 && s.mapObjects !=null ? 
         <Ui>
-          <input id="del" type="button" value="刪除" />
+          <input id="del" type="button" value="刪除" onClick={this.handleObjectsRemove}/>
           <input id="draw" type="button" value="畫圖" onClick={this.handleObjectsDraw} />
           <label htmlFor="area">區域層</label>
           <select id="area" onChange={this.handleObjectsArea}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue}>
@@ -704,7 +749,7 @@ drawGridY : function(){
         </Ui>  : null}
       {s.mapObjects == 2 ? 
         <Ui>
-          <input id="del" type="button" value="刪除" />
+          <input id="del" type="button" value="刪除" onClick={this.handleObjectsRemove}/>
           <input id="draw" type="button" value="畫圖" onClick={this.handleObjectsDraw} />
           <label htmlFor="area">區域物件</label>
           <select id="area" onChange={this.handleObjectsArea}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue}>
