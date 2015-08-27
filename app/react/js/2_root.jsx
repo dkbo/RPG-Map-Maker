@@ -205,7 +205,6 @@ var Root = React.createClass({
     return y
   },
   drawDown : function(e){
-    init.oscontext.clearRect(0,0,this.state.width,this.state.height);
     var x = (Math.floor((e.clientX - 256 -this.state.mapLeft*this.props.map.sX)/this.props.map.sX)*this.props.map.sX)
     var y = (Math.floor((e.clientY - 100 -this.state.mapTop*this.props.map.sY)/this.props.map.sY)*this.props.map.sY)
     if(this.state.sourceX !== false){
@@ -273,7 +272,6 @@ pushIsMove(){
 },
 findObjects : function(e){
   var s = this.state;
-  if(s.json){
     var l;
     var x = e.clientX -255 - (this.state.mapLeft*this.props.map.sX);
     var y = e.clientY -100 - (this.state.mapTop*this.props.map.sY);
@@ -300,9 +298,9 @@ findObjects : function(e){
       if(l>=0)
       this.drawObjectsSelect(arr[l].x , arr[l].y , arr[l].w , arr[l].h);
     }
-  }
 },
 drawObjectsSelect : function(x,y,w,h){
+      init.oscontext.clearRect(0,0,this.state.width,this.state.height);
       init.oscontext.beginPath();
       init.oscontext.rect(x,y,w,h);
       init.oscontext.fillStyle = "rgba(255, 255, 255, 0.23)";
@@ -482,7 +480,7 @@ drawGridY : function(){
         styles : init.arr,
         isMove : init.isMoveArr
       }
-  this.setState({json: null,jsonParse:json, mapObjects:null});
+  this.setState({json: JSON.stringify(json, null, '\t'), jsonParse:json, mapObjects:null});
     }
   },
   immediateSave : function(){
@@ -582,13 +580,20 @@ drawGridY : function(){
       this.setState({objectNum : 0,mapObjects: this.state.mapObjects==2 ? 1 : 2});
   },
   handleObjectsId : function(e){ 
-    var l;
-    if(this.state.mapObjects != 2)
-      l = this.state.jsonParse.styles.length;
-    else
-      l = this.state.jsonParse.isMove.length;
-    if(!isNaN(Math.floor(e.target.value)) && e.target.value < l && e.target.value >= 0)
-      this.setState({objectNum : Math.floor(e.target.value)});
+    var arr = [];
+    if(this.state.mapObjects == 1)
+      arr = this.state.jsonParse.styles;
+    if(this.state.mapObjects == 2)
+      arr = this.state.jsonParse.isMove;
+    if(!isNaN(Math.floor(e.target.value)) && e.target.value < arr.length && e.target.value >= 0){
+      this.setState({objectNum : Math.floor(e.target.value)},function(){
+        var x =arr[this.state.objectNum];
+        if(this.state.mapObjects == 1)
+          this.drawObjectsSelect(x.l,x.t,x.w,x.h);
+        if(this.state.mapObjects == 2)
+          this.drawObjectsSelect(x.x,x.y,x.w,x.h);
+      }.bind(this));
+    }
   },
   handleObjectsName : function(e){
     var json = this.state.jsonParse;
@@ -666,23 +671,32 @@ drawGridY : function(){
   },
   handleObjectsE : function(e){
     if(!isNaN(e.target.value)){
-    var json = this.state.jsonParse;
-    json.isMove[this.state.objectNum].e = e.target.value;
-    this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
+      var json = this.state.jsonParse;
+      if(e.target.value != '')
+        json.isMove[this.state.objectNum].e = e.target.value;
+      else
+        delete json.isMove[this.state.objectNum].e
+      this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
     }
   },
   handleObjectsCM : function(e){
     if(!isNaN(e.target.value)){
-    var json = this.state.jsonParse;
-    json.isMove[this.state.objectNum].cm = e.target.value;
-    this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
+      var json = this.state.jsonParse;
+      if(e.target.value != '')
+        json.isMove[this.state.objectNum].cm = e.target.value;
+      else
+        delete json.isMove[this.state.objectNum].cm
+      this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
     }
   },
   handleObjectsCMM : function(e){
     if(!isNaN(e.target.value)){
-    var json = this.state.jsonParse;
-    json.isMove[this.state.objectNum].cmm = e.target.value;
-    this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
+      var json = this.state.jsonParse;
+      if(e.target.value != '')
+        json.isMove[this.state.objectNum].cmm = e.target.value;
+      else
+        delete json.isMove[this.state.objectNum].cmm
+      this.setState({json : JSON.stringify(json,null,'\t') , jsonParse: json})
     }
   },
   render : function(){
@@ -720,7 +734,7 @@ drawGridY : function(){
       {s.mapObjects != 2 && s.mapObjects !=null ? 
         <Ui>
           <input id="del" type="button" value="刪除" onClick={this.handleObjectsRemove}/>
-          <input id="draw" type="button" value="畫圖" onClick={this.handleObjectsDraw} />
+          <input id="draw" type="button" value="重畫" onClick={this.handleObjectsDraw} />
           <label htmlFor="area">區域層</label>
           <select id="area" onChange={this.handleObjectsArea}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue}>
             <option value="1" selected>物件區域</option>
@@ -750,7 +764,7 @@ drawGridY : function(){
       {s.mapObjects == 2 ? 
         <Ui>
           <input id="del" type="button" value="刪除" onClick={this.handleObjectsRemove}/>
-          <input id="draw" type="button" value="畫圖" onClick={this.handleObjectsDraw} />
+          <input id="draw" type="button" value="重畫" onClick={this.handleObjectsDraw} />
           <label htmlFor="area">區域物件</label>
           <select id="area" onChange={this.handleObjectsArea}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue}>
             <option value="1">物件區域</option>
@@ -769,11 +783,11 @@ drawGridY : function(){
           <label htmlFor="height">物件高</label>
           <input id="height" type="number" onChange={this.handleObjectsH}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.isMove[s.objectNum].h} />
           <label htmlFor="events">事件ID</label>
-          <input id="events" type="number" onChange={this.handleObjectsH}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.isMove[s.objectNum].h} value={s.jsonParse.isMove[s.objectNum].e} />
+          <input id="events" type="number" onChange={this.handleObjectsE}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.isMove[s.objectNum].h} value={s.jsonParse.isMove[s.objectNum].e} />
           <label htmlFor="inMap">入場圖</label>
-          <input id="inMap" type="number" onChange={this.handleObjectsH}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.isMove[s.objectNum].h} value={s.jsonParse.isMove[s.objectNum].cm} />
+          <input id="inMap" type="number" onChange={this.handleObjectsCM}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.isMove[s.objectNum].h} value={s.jsonParse.isMove[s.objectNum].cm} />
           <label htmlFor="inMapPoint">入場點</label>
-          <input id="inMapPoint" type="number" onChange={this.handleObjectsH}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.isMove[s.objectNum].h}  value={s.jsonParse.isMove[s.objectNum].cmm} />
+          <input id="inMapPoint" type="number" onChange={this.handleObjectsCMM}  onKeyDown={this.handelMapFalse} onKeyUp={this.handelMapTrue} value={s.jsonParse.isMove[s.objectNum].h}  value={s.jsonParse.isMove[s.objectNum].cmm} />
         </Ui>  : null}  
     </div>
    ) 
