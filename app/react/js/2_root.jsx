@@ -54,6 +54,7 @@ var Root = React.createClass({
       opacityM : 1,
       json : null,
       jsonParse : {
+        map : {},
         styles:[],
         isMove:[]
       },
@@ -158,6 +159,7 @@ var Root = React.createClass({
     e.preventDefault();
 },
   drawJson : function(x){
+    init.mapArr = x.map;
     this.drawObjects(init.arr = x.styles);
     this.drawIsMove(init.isMoveArr = x.isMove);
     this.setState({json : JSON.stringify(x, null, '\t'),jsonParse : x,mapObjects: 1,objectNum: 0 })
@@ -450,6 +452,7 @@ drawGridY : function(){
       height : this.state.height
     }
     var json={
+      map : init.mapArr,
       styles : init.arr,
       isMove : init.isMoveArr
     }
@@ -477,6 +480,7 @@ drawGridY : function(){
         init.isMoveArr.length =0;
       }
       var json ={
+        map : {},
         styles : init.arr,
         isMove : init.isMoveArr
       }

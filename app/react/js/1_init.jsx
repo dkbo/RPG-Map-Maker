@@ -16,6 +16,7 @@ init.mouseMoveW = 0;
 init.mouseMoveH = 0;
 init.isMoveArr = [];
 init.arr =[];
+init.map =[];
 init.img = ["http://dkbo.github.io/images/rpg_maker_xp.png"];
 init.pre = [];
 init.immediate = false;
