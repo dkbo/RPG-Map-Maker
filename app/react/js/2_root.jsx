@@ -159,6 +159,7 @@ var Root = React.createClass({
     e.preventDefault();
 },
   drawJson : function(x){
+    init.npcArr = x.npc;
     init.mapArr = x.map;
     this.drawObjects(init.arr = x.styles);
     this.drawIsMove(init.isMoveArr = x.isMove);
@@ -454,7 +455,8 @@ drawGridY : function(){
     var json={
       map : init.mapArr,
       styles : init.arr,
-      isMove : init.isMoveArr
+      isMove : init.isMoveArr,
+      npc : init.npcArr
     }
     localStorage.dkbo = JSON.stringify(json);
     localStorage.dkbomap = JSON.stringify(map);
@@ -470,6 +472,7 @@ drawGridY : function(){
   clear : function(){
     if(init.alt){
       init.oscontext.clearRect(0,0,this.state.width,this.state.height);
+      init.npcArr.length = 0;
       if(this.state.opacityF && this.state.opacityB){
         init.fcontext.clearRect(0, 0, this.state.width, this.state.height);
         init.bcontext.clearRect(0, 0, this.state.width, this.state.height);
@@ -482,7 +485,8 @@ drawGridY : function(){
       var json ={
         map : {},
         styles : init.arr,
-        isMove : init.isMoveArr
+        isMove : init.isMoveArr,
+        npc : init.npcArr
       }
   this.setState({json: JSON.stringify(json, null, '\t'), jsonParse:json, mapObjects:null});
     }
