@@ -517,6 +517,7 @@ drawGridY : function(){
     this.drawObjectsSelect(x,y,s.sourceW,s.sourceH);
     init.arr.push(json)
     json = {
+      map : init.mapArr,
       styles : init.arr,
       isMove : init.isMoveArr,
       npc : init.npcArr
