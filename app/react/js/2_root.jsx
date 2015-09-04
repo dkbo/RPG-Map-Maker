@@ -518,7 +518,8 @@ drawGridY : function(){
     init.arr.push(json)
     json = {
       styles : init.arr,
-      isMove : init.isMoveArr
+      isMove : init.isMoveArr,
+      npc : init.npcArr
     }
     this.setState({json : JSON.stringify(json, null, '\t'),jsonParse:json,objectNum: init.arr.length-1,mapObjects: 1})
   },
