@@ -1,45 +1,25 @@
-var webpack = require('webpack');
-var path = require('path');
-var loaders = require('./webpack.loaders');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
-var HtmlWebpackPlugin = require('html-webpack-plugin');
-var WebpackCleanupPlugin = require('webpack-cleanup-plugin');
+const path = require('path');
+const loaders = require('./webpack.loaders');
+const plugins = require('./webpack.productionPlugins');
 
+const enterFile = 'src/index.jsx';
+const outerPath = 'public';
 module.exports = {
-	entry: [
-		'./src/index.jsx'
-	],
+	entry: {
+		// polyfill: ['babel-polyfill'],
+		react: ['react', 'react-dom', 'react-redux'],
+		app: path.join(__dirname, enterFile),
+	},
 	output: {
-		path: path.join(__dirname, 'public'),
-		filename: '[chunkhash].js'
+		path: path.join(__dirname, outerPath),
+		// filename: './js/[name]_[chunkhash].js'
+		filename: './js/[name].js'
 	},
 	resolve: {
-		extensions: ['', '.js', '.jsx']
+		extensions: ['', '.js', '.jsx', '.sass']
 	},
 	module: {
 		loaders
 	},
-	plugins: [
-		new WebpackCleanupPlugin(),
-		new webpack.DefinePlugin({
-			'process.env': {
-				NODE_ENV: '"production"'
-			}
-		}),
-		new webpack.optimize.UglifyJsPlugin({
-			compress: {
-				warnings: false,
-				screw_ie8: true,
-				drop_console: true,
-				drop_debugger: true
-			}
-		}),
-		new webpack.optimize.OccurenceOrderPlugin(),
-		new ExtractTextPlugin('[contenthash].css', {
-			allChunks: true
-		}),
-		new HtmlWebpackPlugin({
-			template: './src/index.jade',
-		})
-	]
+	plugins: plugins
 };

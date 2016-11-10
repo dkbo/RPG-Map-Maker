@@ -1,22 +1,22 @@
-"use strict";
-var webpack = require('webpack');
-var path = require('path');
-var loaders = require('./webpack.loaders');
-var HtmlWebpackPlugin = require('html-webpack-plugin');
+const path = require('path');
+const loaders = require('./webpack.loaders');
+const plugins = require('./webpack.plugins');
 
 const HOST = process.env.HOST || "127.0.0.1";
 const PORT = process.env.PORT || "8888";
-
+const enterFile = 'src/index.jsx';
+const outerPath = 'public';
 module.exports = {
 	entry: [
 		`webpack-dev-server/client?http://${HOST}:${PORT}`,
-		`webpack/hot/only-dev-server`,
-		`./src/index.jsx` // Your appʼs entry point
+		'webpack/hot/only-dev-server',
+		path.join(__dirname, enterFile), // Your appʼs entry point
+
 	],
 	devtool: process.env.WEBPACK_DEVTOOL || 'cheap-module-source-map',
 	output: {
-		path: path.join(__dirname, 'public'),
-		filename: 'bundle.js'
+		path: path.join(__dirname, outerPath),
+		filename: '[name].js'
 	},
 	resolve: {
 		extensions: ['', '.js', '.jsx', '.sass']
@@ -37,11 +37,5 @@ module.exports = {
 		port: PORT,
 		host: HOST
 	},
-	plugins: [
-		new webpack.NoErrorsPlugin(),
-		new webpack.HotModuleReplacementPlugin(),
-		new HtmlWebpackPlugin({
-		    template: './src/index.jade',
-		})
-	]
+	plugins: plugins
 };
