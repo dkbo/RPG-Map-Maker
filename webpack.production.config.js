@@ -1,6 +1,7 @@
 const path = require('path');
 const loaders = require('./webpack.loaders');
 const plugins = require('./webpack.productionPlugins');
+const autoprefixer = require('autoprefixer');
 
 const enterFile = 'src/index.jsx';
 const outerPath = 'public';
@@ -20,6 +21,9 @@ module.exports = {
 	},
 	module: {
 		loaders
+	},
+	postcss: function(){
+		return [autoprefixer({browsers: ['last 2 versions']})]
 	},
 	plugins: plugins
 };

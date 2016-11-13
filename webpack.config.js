@@ -1,6 +1,7 @@
 const path = require('path');
 const loaders = require('./webpack.loaders');
 const plugins = require('./webpack.plugins');
+const autoprefixer = require('autoprefixer');
 
 const HOST = process.env.HOST || "127.0.0.1";
 const PORT = process.env.PORT || "7777";
@@ -23,6 +24,9 @@ module.exports = {
 	},
 	module: {
 		loaders
+	},
+	postcss: function(){
+		return [autoprefixer({browsers: ['last 2 versions']})]
 	},
 	devServer: {
 		contentBase: "./public",
