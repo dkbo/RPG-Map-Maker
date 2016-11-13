@@ -14,3 +14,13 @@ export default class Input extends Component {
    )
 	}
 }
+
+Input.propTypes = {
+	id: PropTypes.string,
+	title: PropTypes.string,
+	placeholder: PropTypes.any,
+	value: PropTypes.any,
+	readOnly: PropTypes.bool,
+	onChange: PropTypes.func,
+	type: PropTypes.string,
+};

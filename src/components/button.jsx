@@ -5,7 +5,7 @@ export default class Button extends Component {
 	    return (
      	<span>
 				<input id={this.props.id ? this.props.id : null}
-					type="button"
+					type='button'
 					onClick={this.props.onClick ? this.props.onClick : null}
 					value={this.props.value ? this.props.value : ''}
       			   readOnly={this.props.readOnly ? true : false} />
@@ -13,3 +13,12 @@ export default class Button extends Component {
    )
 	}
 }
+
+Button.propTypes = {
+	id: PropTypes.string,
+	title: PropTypes.string,
+	value: PropTypes.string,
+	readOnly: PropTypes.bool,
+	onChange: PropTypes.func,
+	onClick: PropTypes.func,
+};

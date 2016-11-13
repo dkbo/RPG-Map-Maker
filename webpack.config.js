@@ -3,7 +3,7 @@ const loaders = require('./webpack.loaders');
 const plugins = require('./webpack.plugins');
 
 const HOST = process.env.HOST || "127.0.0.1";
-const PORT = process.env.PORT || "8888";
+const PORT = process.env.PORT || "7777";
 const enterFile = 'src/index.jsx';
 const outerPath = 'public';
 module.exports = {
