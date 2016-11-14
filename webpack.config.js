@@ -3,8 +3,8 @@ const loaders = require('./webpack.loaders');
 const plugins = require('./webpack.plugins');
 const autoprefixer = require('autoprefixer');
 
-const HOST = process.env.HOST || "127.0.0.1";
-const PORT = process.env.PORT || "7777";
+const HOST = process.env.HOST || '127.0.0.1';
+const PORT = process.env.PORT || '7777';
 const enterFile = 'src/index.jsx';
 const outerPath = 'public';
 module.exports = {
@@ -29,7 +29,7 @@ module.exports = {
 		return [autoprefixer({browsers: ['last 2 versions']})]
 	},
 	devServer: {
-		contentBase: "./public",
+		contentBase: './public',
 		// do not print bundle build stats
 		noInfo: true,
 		// enable HMR

@@ -37,7 +37,7 @@ module.exports = [
 	}),
 	new webpack.optimize.OccurenceOrderPlugin(),
 	// new ExtractTextPlugin('./css/[name]_[contenthash].css', {
-	new ExtractTextPlugin('./css/[name].css', {
+	new ExtractTextPlugin('./style/[name].css', {
 		allChunks: true
 	}),
 	new HtmlWebpackPlugin({

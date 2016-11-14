@@ -73,6 +73,7 @@ export default class Main extends Component {
       },
       sprites: 1,
     }
+    this.preLoadImage();
 
     this.mapKeyDown = ::this.mapKeyDown;
     this.mapKeyUp = ::this.mapKeyUp;
@@ -83,7 +84,20 @@ export default class Main extends Component {
     this.saveBCanvas = ::this.saveBCanvas;
 
   }
-
+  preLoadImage() {
+    let imgNum = this.init.img.length;
+    this.init.img.map((src)=>{
+      const img = new Image();
+      img.onload = () => {
+        if(imgNum === 1) {
+          console.log('圖片加載完成')
+        } else {
+          console.log(`剩下 ${--imgNum} 張圖片加載`)
+        }
+      };
+      img.src = src;
+    });
+  }
 	handleSpritesMouseDown(e){
     this.init.scontext.clearRect(0, 0, 256, 12000);
     if(e.button === 0){
